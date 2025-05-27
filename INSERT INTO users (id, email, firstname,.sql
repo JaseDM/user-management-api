@@ -1,0 +1,2 @@
+INSERT INTO users (id, email, firstname, lastName, password, status, phoneNumber, avatar, emailVerified, emailVerificationToken, passwordResetToken, passwordResetExpires, lastLoginAt, createdAt, updatedAt) VALUES
+  (uuid_generate_v4(), 'admin@example.com', 'Admin', 'User', 'hashedPassword1', 'ACTIVE', '1234567890', 'avatar1.png', true, NULL, NULL, NULL, '2023-01-01 10:00:00', '2023-01-01 10:00:00', '2023-01-01 10:00:00');
