@@ -1,20 +1,20 @@
-# Usa una imagen Node oficial como base
 FROM node:20-alpine
 
-# Crea el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos del proyecto
+# Instala dependencias necesarias del sistema
+RUN apk add --no-cache python3 make g++
+
 COPY package*.json ./
 RUN npm install
 
 COPY . .
 
-# Compila la app NestJS
 RUN npm run build
 
-# Expón el puerto (debe coincidir con el puerto que escucha Nest)
+# Limpieza opcional
+RUN apk del python3 make g++ && npm prune --production
+
 EXPOSE 3000
 
-# Comando para ejecutar la app
 CMD ["npm", "run", "start:prod"]
