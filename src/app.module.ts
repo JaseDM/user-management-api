@@ -32,7 +32,7 @@ import { Role } from './roles/entities/role.entity';
               type: 'postgres',
               url: configService.get('DATABASE_URL'),
               entities: [User, Role],
-              synchronize: false,
+              synchronize: true,
               logging: false,
               ssl: {
                 rejectUnauthorized: false,
