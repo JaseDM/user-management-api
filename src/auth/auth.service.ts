@@ -65,7 +65,7 @@ import {
         throw new BadRequestException('Rol por defecto no encontrado');
       }
   
-      // Crear usuario
+      // Crear usuario inactivo por defecto
       const user = this.userRepository.create({
         email,
         firstName,
@@ -73,6 +73,8 @@ import {
         password: hashedPassword,
         phoneNumber,
         roles: [defaultRole],
+        status: UserStatus.INACTIVE,
+        emailVerified: false,
         emailVerificationToken: this.generateVerificationToken(),
       });
   
@@ -246,6 +248,24 @@ import {
       return {
         message: 'Contraseña restablecida exitosamente',
       };
+    }
+  
+    async verifyEmail(token: string) {
+      if (!token) {
+        throw new BadRequestException('Token de verificación requerido');
+      }
+      const user = await this.userRepository.findOne({ where: { emailVerificationToken: token } });
+      if (!user) {
+        throw new BadRequestException('Token de verificación inválido o expirado');
+      }
+      if (user.emailVerified) {
+        return { message: 'El correo ya ha sido verificado previamente.' };
+      }
+    user.emailVerified = true;
+    user.status = UserStatus.ACTIVE;
+    user.emailVerificationToken = undefined;
+      await this.userRepository.save(user);
+      return { message: 'Correo verificado exitosamente. Ya puedes iniciar sesión.' };
     }
   
     async validateUser(payload: JwtPayload): Promise<User> {

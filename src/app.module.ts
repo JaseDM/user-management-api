@@ -47,7 +47,7 @@ import { Role } from './roles/entities/role.entity';
               database: configService.get('DATABASE_NAME'),
               entities: [User, Role],
               synchronize: true, // ⚠️ Solo en desarrollo
-              logging: true,
+              logging: false,
             };
       },
       inject: [ConfigService],
@@ -60,7 +60,7 @@ import { Role } from './roles/entities/role.entity';
   controllers: [AppController],
   providers: [
     AppService,
-    // Aplicar JWT Guard globalmente (se puede sobrescribir en controladores específicos)
+    //Aplicar JWT Guard globalmente (se puede sobrescribir en controladores específicos)
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

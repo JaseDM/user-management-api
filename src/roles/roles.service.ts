@@ -299,6 +299,11 @@ import {
           description: 'Usuario estándar del sistema',
           permissions: [],
         },
+        {
+          name: 'PATIENT',
+          description: 'Paciente del sistema',
+          permissions: [],
+        },
       ];
   
       for (const roleData of defaultRoles) {

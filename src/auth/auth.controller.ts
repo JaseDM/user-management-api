@@ -1,3 +1,4 @@
+import { Query } from '@nestjs/common';
 import {
     Controller,
     Post,
@@ -27,7 +28,14 @@ import {
   @Controller('auth')
   export class AuthController {
     constructor(private readonly authService: AuthService) {}
-  
+    
+    @Public()
+    @Get('verify-email')
+    @HttpCode(HttpStatus.OK)
+    async verifyEmail(@Query('token') token: string) {
+      return this.authService.verifyEmail(token);
+    }
+
     @Public()
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
