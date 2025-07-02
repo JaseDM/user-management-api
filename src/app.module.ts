@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -15,6 +16,15 @@ import { Role } from './roles/entities/role.entity';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+        throttlers: [
+          {
+            ttl: 60000,
+            limit: 10,
+          },
+        ],
+      }),
+
     // Configuración de variables de entorno
     ConfigModule.forRoot({
       isGlobal: true,
@@ -60,6 +70,10 @@ import { Role } from './roles/entities/role.entity';
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    },
     //Aplicar JWT Guard globalmente (se puede sobrescribir en controladores específicos)
     {
       provide: APP_GUARD,
