@@ -5,37 +5,45 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
-  
-  // Configuración global de validación de DTOs
+
+  // Confía en el proxy (Plesk/Nginx)
+  app.set('trust proxy', 1);
+
+  // Prefijo global /v1
+  app.setGlobalPrefix('v1');
+
+  // Validación global DTOs
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
     transform: true,
   }));
-  
-  // Configuración global de filtro de excepciones
+
+  // Filtro global de excepciones
   app.useGlobalFilters(new HttpExceptionFilter());
-  
-  // Configuración global de interceptor de transformación
+
+  // Interceptor global de transformación
   app.useGlobalInterceptors(new TransformInterceptor());
-  
-  // Configuración de CORS
+
+  // CORS
   app.enableCors();
 
-  // Configuración de Swagger
-  const config = new DocumentBuilder()
+  // Swagger en /v1/docs (con server correcto)
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('User Management API')
     .setDescription('API para la gestión de usuarios')
     .setVersion('1.0')
+    .addServer('/v1') // para que "Try it out" use el prefijo
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-  
-  // Puerto de la aplicación
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('v1/docs', app, document);
+
+  // Puerto
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
   console.log(`Application running on port ${port}`);
