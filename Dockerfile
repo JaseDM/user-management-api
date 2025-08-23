@@ -31,9 +31,8 @@ COPY --chown=nodejs:nodejs package*.json ./
 USER nodejs
 EXPOSE 3000
 
-# Healthcheck (ajusta la ruta si tu endpoint es otro)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 \
-  CMD node -e "require('http').get('http://127.0.0.1:3000/health',r=>process.exit(r.statusCode<400?0:1)).on('error',()=>process.exit(1))"
+  CMD node -e "require('http').get('http://127.0.0.1:3000/v1/health',r=>process.exit(r.statusCode<400?0:1)).on('error',()=>process.exit(1))"
 
-# Arranque directo en prod
+  # Arranque directo en prod
 CMD ["node", "dist/main.js"]
