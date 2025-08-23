@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -9,15 +7,17 @@ services:
       POSTGRES_DB: user_management
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password123
-      APP_ENV: development
-      APP_DEBUG: 'true'
     ports:
-      - '5432:5432'
+      - "127.0.0.1:5432:5432"   # solo loopback
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d user_management"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   # Opcional: pgAdmin para administrar la base de datos
   pgadmin:
@@ -28,11 +28,47 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - '8080:80'
+      - "127.0.0.1:8080:80"
     depends_on:
       - postgres
     networks:
       - app_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: "20"
+    container_name: umapi
+    env_file: .env 
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+
+      # --- Opción 1 (recomendada por simplicidad):
+      DATABASE_URL: "postgres://admin:password123@postgres:5432/user_management"
+
+      # --- Opción 2 (por si tu código usa variables sueltas):
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: admin
+      DB_PASS: password123
+      DB_NAME: user_management
+    ports:
+      - "127.0.0.1:3000:3000"   # expone solo a tu máquina
+    restart: always
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/health',r=>process.exit(r.statusCode<400?0:1)).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
 
 volumes:
   postgres_data:
