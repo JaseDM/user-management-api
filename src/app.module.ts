@@ -45,10 +45,13 @@ import { HealthModule } from './health/health.module';
           type: 'postgres' as const,
           entities: [User, Role],
           // Nunca sincronices en producción sin saber lo que haces
-          synchronize: config.get<string>('DB_SYNC') === 'true' && !isProd ? true : false,
+          synchronize: config.get<string>('DB_SYNC') === 'true',
           logging: false,
           autoLoadEntities: true,
+          
         };
+
+        
 
         if (url) {
           return {
