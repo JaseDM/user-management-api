@@ -51,12 +51,15 @@ import {
     emailVerified: boolean;
   
     @Column({ nullable: true })
+    @Exclude()
     emailVerificationToken?: string;
   
     @Column({ nullable: true })
+    @Exclude()
     passwordResetToken?: string;
   
     @Column({ nullable: true })
+    @Exclude()
     passwordResetExpires?: Date;
   
     @Column({ nullable: true })

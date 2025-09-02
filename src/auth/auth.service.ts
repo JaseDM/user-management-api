@@ -90,7 +90,7 @@ import {
       const accessToken = this.jwtService.sign(payload);
   
       return {
-        user: this.sanitizeUser(savedUser),
+        user: savedUser,
         accessToken,
         message: 'Usuario registrado exitosamente',
       };
@@ -134,7 +134,7 @@ import {
       const accessToken = this.jwtService.sign(payload);
   
       return {
-        user: this.sanitizeUser(user),
+        user: user,
         accessToken,
         message: 'Login exitoso',
       };
@@ -210,10 +210,6 @@ import {
   
       return {
         message: 'Si el email existe, se ha enviado un enlace de recuperación',
-        // En desarrollo, devolver el token (eliminar en producción)
-        ...(this.configService.get('NODE_ENV') === 'development' && {
-          resetToken,
-        }),
       };
     }
   
@@ -279,11 +275,6 @@ import {
       }
   
       return user;
-    }
-  
-    private sanitizeUser(user: User) {
-      const { password, passwordResetToken, emailVerificationToken, ...result } = user;
-      return result;
     }
   
     private generateVerificationToken(): string {

@@ -41,6 +41,10 @@ import { HealthModule } from './health/health.module';
           config.get<string>('DB_SSL') === 'true' ||
           (url?.includes('sslmode=require') ?? false);
 
+        // Por defecto, rechazar certificados no autorizados (más seguro)
+        const rejectUnauthorized =
+          config.get<string>('DB_SSL_REJECT_UNAUTHORIZED') !== 'false';
+
         const common = {
           type: 'postgres' as const,
           entities: [User, Role],
@@ -48,16 +52,15 @@ import { HealthModule } from './health/health.module';
           synchronize: config.get<string>('DB_SYNC') === 'true',
           logging: false,
           autoLoadEntities: true,
-          
         };
 
-        
+        const sslOptions = useSSL ? { rejectUnauthorized } : undefined;
 
         if (url) {
           return {
             ...common,
             url,
-            ssl: useSSL ? { rejectUnauthorized: false } : undefined,
+            ssl: sslOptions,
             // Extras útiles para evitar timeouts esporádicos
             extra: { keepAlive: true },
           };
@@ -71,7 +74,7 @@ import { HealthModule } from './health/health.module';
           username: config.get<string>('DATABASE_USER'),
           password: config.get<string>('DATABASE_PASSWORD'),
           database: config.get<string>('DATABASE_NAME'),
-          ssl: useSSL ? { rejectUnauthorized: false } : undefined,
+          ssl: sslOptions,
           extra: { keepAlive: true },
         };
       },

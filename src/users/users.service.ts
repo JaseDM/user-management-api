@@ -8,6 +8,7 @@ import {
   import { Repository, Like, In } from 'typeorm';
   import * as bcrypt from 'bcryptjs';
   import { ConfigService } from '@nestjs/config';
+  import { randomBytes } from 'crypto';
   
   import { User, UserStatus } from './entities/user.entity';
   import { Role } from '../roles/entities/role.entity';
@@ -87,8 +88,8 @@ import {
   
       const savedUser = await this.userRepository.save(user);
   
-      // En un entorno real, enviarías la contraseña temporal por email
-      console.log(`Contraseña temporal para ${email}: ${temporaryPassword}`);
+      // En un entorno real, la contraseña temporal se enviaría por email.
+      // Por seguridad, no la mostramos en los logs.
   
       return savedUser;
     }
@@ -130,7 +131,7 @@ import {
       const [users, total] = await queryBuilder.getManyAndCount();
   
       return {
-        data: users.map(user => this.sanitizeUser(user)),
+        data: users,
         pagination: {
           page,
           limit,
@@ -257,27 +258,8 @@ import {
       };
     }
   
-    private sanitizeUser(user: User) {
-      const { password, passwordResetToken, emailVerificationToken, ...result } = user;
-      return result;
-    }
-  
-    private generateTemporaryPassword(): string {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&';
-      let password = '';
-      
-      // Asegurar que tenga al menos un carácter de cada tipo
-      password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]; // Mayúscula
-      password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]; // Minúscula
-      password += '0123456789'[Math.floor(Math.random() * 10)]; // Número
-      password += '@$!%*?&'[Math.floor(Math.random() * 7)]; // Especial
-      
-      // Completar hasta 12 caracteres
-      for (let i = 4; i < 12; i++) {
-        password += chars[Math.floor(Math.random() * chars.length)];
-      }
-      
-      // Mezclar caracteres
-      return password.split('').sort(() => Math.random() - 0.5).join('');
+    private generateTemporaryPassword(length = 12): string {
+      // Genera una contraseña segura y aleatoria
+      return randomBytes(length).toString('base64').slice(0, length);
     }
   }

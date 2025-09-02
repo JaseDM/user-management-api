@@ -1,6 +1,6 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { ConfigService } from '@nestjs/config';
@@ -27,8 +27,13 @@ async function bootstrap() {
   // Filtro global de excepciones
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Interceptor global de transformación
-  app.useGlobalInterceptors(new TransformInterceptor());
+  // Interceptores globales
+  app.useGlobalInterceptors(
+    // Transforma la respuesta usando el interceptor de NestJS
+    new TransformInterceptor(),
+    // Serializa la respuesta (usa decoradores @Exclude, @Expose)
+    new ClassSerializerInterceptor(app.get(Reflector)),
+  );
 
   // CORS
   app.enableCors();
