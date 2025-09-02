@@ -89,8 +89,9 @@ import { HealthModule } from './health/health.module';
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
-    // Guard JWT global (puedes sobreescribir por controlador)
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    // El Guard JWT global se ha desactivado temporalmente para facilitar
+    // la populación de la base de datos.
+    // { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
 })
 export class AppModule {}
