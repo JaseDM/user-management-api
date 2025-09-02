@@ -195,7 +195,6 @@ export class UsersController {
       }
     }
   })
-  @Roles('ADMIN')
   async assignRoles(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() assignRolesDto: AssignRolesDto,
@@ -213,11 +212,8 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete a user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 204, description: 'User deleted successfully.' })
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.usersService.remove(id);
-    return {
-      message: 'Usuario eliminado exitosamente',
-    };
   }
 
   @Patch(':id/soft-delete')

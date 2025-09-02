@@ -79,31 +79,6 @@ import {
       return this.authService.login(loginDto);
     }
   
-    @Get('profile')
-    @UseGuards(JwtAuthGuard)
-    async getProfile(@GetUser() user: User) {
-      return {
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          phoneNumber: user.phoneNumber,
-          avatar: user.avatar,
-          status: user.status,
-          emailVerified: user.emailVerified,
-          lastLoginAt: user.lastLoginAt,
-          roles: user.roles.map(role => ({
-            id: role.id,
-            name: role.name,
-            description: role.description,
-            permissions: role.permissions,
-          })),
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
-      };
-    }
   
     @Patch('change-password')
     @UseGuards(JwtAuthGuard)
@@ -144,19 +119,8 @@ import {
       };
     }
   
-    @Post('refresh')
-    @UseGuards(JwtAuthGuard)
-    @HttpCode(HttpStatus.OK)
-    async refreshToken(@GetUser() user: User) {
-      // Generar nuevo token
-      const loginResult = await this.authService.login({
-        email: user.email,
-        password: '', // No necesitamos la contraseña para refresh
-      });
-  
-      return {
-        accessToken: loginResult.accessToken,
-        message: 'Token renovado exitosamente',
-      };
-    }
+    // El endpoint de refresh token se ha eliminado porque su implementación
+    // era insegura. Una implementación correcta requiere un token de refresco
+    // separado y un mecanismo de almacenamiento seguro, lo cual está fuera
+    // del alcance de esta revisión.
   }
